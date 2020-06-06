@@ -23,10 +23,33 @@ export class RBTNode {
 class RedBlackTree {
   constructor(Node = RBTNode) {
     this.Node = Node;
+    this._count = 0;
+  }
+
+  _findNode(key) {
+    // Retuns {node, parent}, either of which may be undefined
+    // Node undefined means the key isn't in the tree
+    // Parent undefined means node is the root
+    let node = this._root;
+    let parent = node?.parent;
+
+    // Nodes without keys are considered sentinels
+    while (node && node.key !== undefined) {
+      if (key < node.key) {
+        parent = node;
+        node = node.left;
+      } else if (key > node.key) {
+        parent = node;
+        node = node.right;
+      } else { // equal
+        break;
+      }
+    }
+    return { node, parent }
   }
 
   lookup(key) {
-
+    return this._findNode(key).node?.value;
   }
 
   /**
@@ -100,13 +123,116 @@ class RedBlackTree {
     // put node on child's right
     child.right = node;
     node.parent = child;
+
   }
 
-  _insertInternal(key, value) {
+  _insertInternal(key, value = true) {
+    const results = this._findNode(key);
+    let { node } = results;
+    const { parent } = results;
+
+    if (node?.key) {
+      // key already in the tree, replace the value
+      node.value = value;
+
+    } else {
+      // new node
+      node = new this.Node({ key, value, parent });
+      this._count += 1;
+      if (parent?.key) {
+        if (key < parent.key) {
+          parent.left = node;
+        } else {
+          parent.right = node;
+        }
+
+      } else {
+        this._root = node;
+      }
+    }
+    return node;
   }
+
+  // _insertInternal(key, value) {
+
+  // }
 
   _insertRebalance(node) {
-  }
+    while(node.color === RBTNode.RED && node.parent.color === RBTNode.RED) {
+      let parent = node.parent;
+      let grandparent = parent.parent;
+      // console.log(node)
+      // console.log(parent)
+      // console.log(grandparent)
+
+
+      if(grandparent.left?.key === parent.key){
+        // parent is the left child
+        let uncle = grandparent.right
+
+        if(uncle.color === RBTNode.RED){
+          // swap colors between generations
+          parent.color = RBTNode.BLACK;
+          uncle.color =  RBTNode.BLACK;
+          grandparent.color = RBTNode.RED;
+          node = grandparent;
+          if (node.parent === RBTNode.sentinel){
+            console.log(node)
+            node.color === RBTNode.BLACK;
+            break;
+          }
+          // do we need to check if we hit root?
+          
+          // continue, possibly done, will be done at root
+        } else {
+          // uncle is black
+          if(parent.right.key === node.key){
+            parent = node;
+            node = node.parent;
+            this._rotateLeft(node);
+          }
+          if(parent.left.key === node.key){
+            parent.color = RBTNode.BLACK
+            grandparent.color = RBTNode.RED
+            this._rotateRight(grandparent)
+          }
+        }
+
+      } else {
+        // // 
+        //   // parent is the right child () if grandparent.right.key === parent.key
+        //   let uncle = grandparent.left
+
+        //   // uncle is red
+        //   if(uncle?.color === RBTNode.RED){
+        //     parent.color = RBTNode.BLACK;
+        //     uncle.color =  RBTNode.BLACK;
+        //     grandparent.color = RBTNode.RED;
+        //     node = grandparent;
+        //     // when node becomes the root and its red how do we change to black?
+        //     // NOTE: do we have to do this
+        //     // if statement if node.parent = sentinel then node.color = black
+        //   } else { //else uncle is black
+        //     if(parent.right.key === node.key){
+        //       parent = node;
+        //       node = node.parent;
+        //       this._rotateRight(node);
+        //     }
+        //     if(parent.left.key === node.key){
+        //       parent.color = RBTNode.BLACK;
+        //       grandparent.color = RBTNode.RED;
+        //       this._rotateLeft(grandparent);
+        //     }
+        //   }
+      }
+    }
+}
+
+   
+
+
+
+  
 
   insert(key, value) {
     const node = this._insertInternal(key, value);
@@ -118,11 +244,10 @@ class RedBlackTree {
   }
 
   count() {
-
+    return this._count;
   }
 
   forEach(callback) {
-    
   }
 }
 

@@ -5,7 +5,7 @@ import RedBlackTree from '../red_black_tree';
 // in red_black_tree.test.js
 
 const dataStructures = [
-  BinarySearchTree,
+  // BinarySearchTree,
   RedBlackTree,
 ];
 
@@ -20,7 +20,7 @@ dataStructures.forEach(TargetDS => {
       expect(bst.count()).toBe(0);
     });
 
-    describe('lookup', () => {
+    describe.skip('lookup', () => {
       it('returns undefined on an empty tree', () => {
         expect(bst.lookup('test')).toBe(undefined);
       });
